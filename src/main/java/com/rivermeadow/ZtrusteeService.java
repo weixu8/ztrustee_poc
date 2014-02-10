@@ -24,12 +24,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ZtrusteeService {
     private static final ClientFactory CLIENT_FACTORY = new ClientFactoryImpl();
-    private final ClientInfo clientInfo;
     private static final ServerInfo SERVER_INFO = new ServerInfo.Builder()
             .hostname("ztdemo.gazzang.net")
             .build();
     private static final File ZTRUSTEE_KEY_DIR = new File("/Users/jinloes/.ztrustee");
-    private final ActivationRequest req = new ActivationRequest.Builder()
+    private static final ActivationRequest activationRequest = new ActivationRequest.Builder()
             .org("rivermeadow_poc")
             .auth("S00l31Q6ql3U/BKTpuE3qQ==")
             .build();
@@ -38,6 +37,7 @@ public class ZtrusteeService {
 
     public ZtrusteeService() {
         try {
+            ClientInfo clientInfo;
             if(!CLIENT_FACTORY.clientExists(ZTRUSTEE_KEY_DIR)) {
                 clientInfo = CLIENT_FACTORY.createNewClient(KeyLength.L_2048, ZTRUSTEE_KEY_DIR);
             } else {
@@ -45,7 +45,7 @@ public class ZtrusteeService {
             }
             conn = CLIENT_FACTORY.connect(clientInfo, SERVER_INFO);
             if(!conn.isRegistered()) {
-                conn.registerAndActivate(req);
+                conn.registerAndActivate(activationRequest);
                 conn.getClientInfo().saveConfig(ZTRUSTEE_KEY_DIR);
             }
         } catch (ZtrusteeException e) {
